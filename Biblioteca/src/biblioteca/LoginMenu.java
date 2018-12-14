@@ -5,6 +5,7 @@
  */
 package biblioteca;
 
+import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 
 /**
@@ -12,12 +13,14 @@ import javax.swing.JOptionPane;
  * @author avent
  */
 public class LoginMenu extends javax.swing.JFrame {
-
+    Biblioteca biblioteca;
     /**
      * Creates new form LoginMenu
      */
     public LoginMenu() {
         initComponents();
+        
+        
     }
 
     /**
@@ -38,6 +41,12 @@ public class LoginMenu extends javax.swing.JFrame {
         loginBT = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Login Menu");
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                formKeyPressed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -48,6 +57,9 @@ public class LoginMenu extends javax.swing.JFrame {
         jLabel2.setText("Username:");
 
         userTF.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                userTFKeyPressed(evt);
+            }
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 userTFKeyTyped(evt);
             }
@@ -143,7 +155,7 @@ public class LoginMenu extends javax.swing.JFrame {
         // TODO add your handling code here:
         System.exit(0);
     }//GEN-LAST:event_exitBTActionPerformed
-    
+   
     private void loginBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginBTActionPerformed
         if(userTF.getText().equalsIgnoreCase("admin") && passTF.getText().equals("12345")){
             JOptionPane.showMessageDialog(rootPane, "Login Succefully");
@@ -155,17 +167,14 @@ public class LoginMenu extends javax.swing.JFrame {
             }
         });
         }else
-            JOptionPane.showMessageDialog(rootPane, "User or Password is incorrect");
-        
-        
-        
+            JOptionPane.showMessageDialog(rootPane, "User or Password is incorrect");        
     }//GEN-LAST:event_loginBTActionPerformed
 
     private void loginBTMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_loginBTMouseClicked
         // TODO add your handling code here:
         
     }//GEN-LAST:event_loginBTMouseClicked
-
+    
     private void userTFKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_userTFKeyTyped
         // TODO add your handling code here:
         if ((userTF.getText() + evt.getKeyChar()).length() > 10) {
@@ -179,8 +188,54 @@ public class LoginMenu extends javax.swing.JFrame {
 
     private void passTFKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passTFKeyPressed
         // TODO add your handling code here:
-      
+      if(evt.getKeyCode()== KeyEvent.VK_ENTER){
+          if(userTF.getText().equalsIgnoreCase("admin") && passTF.getText().equals("12345")){
+            JOptionPane.showMessageDialog(rootPane, "Login Succefully");
+            setVisible(false);
+            dispose();
+            java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new Admin().setVisible(true);
+            }
+        });
+        }else
+            JOptionPane.showMessageDialog(rootPane, "User or Password is incorrect");
+      }
     }//GEN-LAST:event_passTFKeyPressed
+
+    private void userTFKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_userTFKeyPressed
+        // TODO add your handling code here:
+        if(evt.getKeyCode()== KeyEvent.VK_ENTER){
+          if(userTF.getText().equalsIgnoreCase("admin") && passTF.getText().equals("12345")){
+            JOptionPane.showMessageDialog(rootPane, "Login Succefully");
+            setVisible(false);
+            dispose();
+            java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new Admin().setVisible(true);
+            }
+        });
+        }else
+            JOptionPane.showMessageDialog(rootPane, "User or Password is incorrect");
+      }
+    }//GEN-LAST:event_userTFKeyPressed
+
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
+        // TODO add your handling code here:
+        if(evt.getKeyCode()== KeyEvent.VK_ENTER){
+          if(userTF.getText().equalsIgnoreCase("admin") && passTF.getText().equals("12345")){
+            JOptionPane.showMessageDialog(rootPane, "Login Succefully");
+            setVisible(false);
+            dispose();
+            java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new Admin().setVisible(true);
+            }
+        });
+        }else
+            JOptionPane.showMessageDialog(rootPane, "User or Password is incorrect");
+      }
+    }//GEN-LAST:event_formKeyPressed
 
     /**
      * @param args the command line arguments
@@ -215,6 +270,7 @@ public class LoginMenu extends javax.swing.JFrame {
                 new LoginMenu().setVisible(true);
             }
         });
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
