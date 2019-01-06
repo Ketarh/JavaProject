@@ -26,25 +26,23 @@ public class Biblioteca {
                 new LoginMenu().setVisible(true);
             }
         });
+        Carte c1, c2;
+        c1 = new Carte();
+        c2 = new Carte();
+        c1.setAutor("Mike");
+        c1.setEditura("Corint");
+        c1.setTitlu("Poveste");
+        c1.setRezumat("o poveste cu Mike");
+        c1.setAn(123);
+        c1.setCant(21);
+        c1.setPret(2);
+        c1.Afisare();
+        c2.Afisare();
+        c2 = c1;
+        c1.Afisare();
+        c2.Afisare();
         
-        Carte c1 = new Carte("Hansel and Grettle", "Frati Grimm", 50, 1987);
         
-        //c1.Afisare();
-        
-        ArrayList<Carte> List = new ArrayList();
-        
-        for(int i=0; i<2 ; i++){
-            Carte cc = new Carte();
-            
-            List.add(cc);
-        }
-        
-        for(int i=0; i<List.size() ; i++){
-            Carte c2;
-            c2=List.get(i);
-            c2.Afisare();
-            
-        }
-    
     }
+
 }

@@ -5,6 +5,7 @@
  */
 package biblioteca;
 
+
 import javax.swing.DefaultListModel;
     
 /**
@@ -12,17 +13,71 @@ import javax.swing.DefaultListModel;
  * @author avent
  */
 public class Admin extends javax.swing.JFrame {
-    Carte carte = new Carte();
+    //Carte carte = new Carte();
+    public static Carte[] CC = new Carte[25];
+    public static int count = 0;
+    
     /**
      * Creates new form Admin
      */
     
-    DefaultListModel dm = new DefaultListModel();
+    public static DefaultListModel dm = new DefaultListModel();
     
     public Admin() {
         initComponents();
+        if(dm.isEmpty() == true){
+                   updateBT.setEnabled(false);
+                   delBT.setEnabled(false);
+               }
     }
 
+    void deselect(){
+        cartiJLIST.clearSelection();
+        addBT.setEnabled(true);
+        updateBT.setEnabled(false);
+        delBT.setEnabled(false);
+    }
+    
+    void clear(){
+        titluTF.setText("");
+        autorTF.setText("");
+        edituraTF.setText("");
+        rezumatTF.setText("");
+        pretTF.setText("");
+        cantTF.setText("");
+        anTF.setText("");
+    }
+    
+    void selectup(int i){
+        titluTF.setText(CC[i].getTitlu());
+        autorTF.setText(CC[i].getAutor());
+        edituraTF.setText(CC[i].getEditura());
+        rezumatTF.setText(CC[i].getRezumat());
+        anTF.setText(Integer.toString(CC[i].getAn()));
+        pretTF.setText(Integer.toString(CC[i].getPret()));
+        cantTF.setText(Integer.toString(CC[i].getCantitate()));
+        addBT.setEnabled(false);
+        updateBT.setEnabled(true);
+        delBT.setEnabled(true);
+    }
+    
+    void update(int i){
+        CC[i].setTitlu(titluTF.getText());
+        CC[i].setAutor(autorTF.getText());
+        CC[i].setEditura(edituraTF.getText());
+        CC[i].setRezumat(rezumatTF.getText());
+        CC[i].setAn(Integer.parseInt(anTF.getText()));
+        CC[i].setCant(Integer.parseInt(cantTF.getText()));
+        CC[i].setPret(Integer.parseInt(pretTF.getText()));
+    }
+    
+    void delete(int i){
+        for(int j=i; j<count; j++){
+            
+            CC[j] = CC[j+1];
+        }
+        count-=1;
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -134,6 +189,12 @@ public class Admin extends javax.swing.JFrame {
         jScrollPane6.setViewportView(cartiJLIST);
 
         CartiDisponibile.setLeftComponent(jScrollPane6);
+
+        AdaugaCarti.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                AdaugaCartiMouseClicked(evt);
+            }
+        });
 
         addBT.setText("Add");
         addBT.addActionListener(new java.awt.event.ActionListener() {
@@ -317,27 +378,20 @@ public class Admin extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-//    private void add(String name){
-//        cartiJLIST.setModel(dm);
-//        dm.addElement(name);
-//    }
+
     
     private void addBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBTActionPerformed
         // TODO add your handling code here:
         cartiJLIST.setModel(dm);                    
-        dm.addElement(titluTF.getText());                                           //Adaug titlul in Jlist
-        carte.setTitlu(titluTF.getText());
-        titluTF.setText("");
-        carte.setAutor(autorTF.getText());
-        carte.setEditura(edituraTF.getText());
-        carte.setRez(rezumatTF.getText());
-        carte.setAn(Integer.parseInt(anTF.getText()));
-        carte.setPret(Integer.parseInt(pretTF.getText()));
-        carte.setCant(Integer.parseInt(cantTF.getText()));
+        dm.addElement(titluTF.getText());
+        CC[count] = new Carte(titluTF.getText(), autorTF.getText(), edituraTF.getText(), rezumatTF.getText(),
+                Integer.parseInt(pretTF.getText()), Integer.parseInt(cantTF.getText()), Integer.parseInt(anTF.getText()));
+        clear(); 
+        CC[count].Afisare();
+        count++;
         
         
         
-        carte.Afisare();
         
         
 //        add(titluTF.getText());
@@ -346,9 +400,19 @@ public class Admin extends javax.swing.JFrame {
 
     private void cartiJLISTMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cartiJLISTMouseClicked
         // TODO add your handling code here:
+        int index = cartiJLIST.getSelectedIndex();
         String selected = cartiJLIST.getSelectedValue();
-        titluTF.setText(selected);
+        selectup(index);
+//        titluTF.setText(CC[index].getTitlu());
+//        autorTF.setText(CC[index].getAutor());
+//        edituraTF.setText(CC[index].getEditura());
+//        rezumatTF.setText(CC[index].getRezumat());
+//        anTF.setText(Integer.toString(CC[index].getAn()));
+//        pretTF.setText(Integer.toString(CC[index].getPret()));
+//        cantTF.setText(Integer.toString(CC[index].getCantitate()));
         
+        System.out.println("Index: " + index);
+        CC[index].Afisare();
     }//GEN-LAST:event_cartiJLISTMouseClicked
 
     private void updateBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateBTActionPerformed
@@ -356,18 +420,28 @@ public class Admin extends javax.swing.JFrame {
         int index = cartiJLIST.getSelectedIndex();
         System.out.println(index);
         dm.set(index, titluTF.getText());
-        carte.setTitlu(titluTF.getText());
-        carte.Afisare();
-        titluTF.setText("");
+        update(index);
+        clear();
+        deselect();
+        CC[index].Afisare();
+        
     }//GEN-LAST:event_updateBTActionPerformed
 
     private void delBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delBTActionPerformed
         // TODO add your handling code here:
         int index = cartiJLIST.getSelectedIndex();
-        
+        delete(index);
+        clear();
+        deselect();
         dm.remove(index);
-        titluTF.setText("");
+        
     }//GEN-LAST:event_delBTActionPerformed
+
+    private void AdaugaCartiMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_AdaugaCartiMouseClicked
+        // TODO add your handling code here:
+        deselect();
+        clear();
+    }//GEN-LAST:event_AdaugaCartiMouseClicked
 
     /**
      * @param args the command line arguments
@@ -395,11 +469,13 @@ public class Admin extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(Admin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
+         
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Admin().setVisible(true);
+                
             }
         });
     }

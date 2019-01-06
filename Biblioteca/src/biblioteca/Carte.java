@@ -5,6 +5,7 @@
  */
 package biblioteca;
 //import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Scanner;
 /**
  *
@@ -22,14 +23,19 @@ public class Carte /*implements Serializable*/ {
     
     Scanner scan =new Scanner(System.in);
     
-    Carte(){
+    
+    
+    public Carte(){
         
     }
     
-    Carte(String t, String a, int p, int an){
+    public Carte(String t, String a, String e, String rez, int p, int cant, int an){
         titlu = t;
         autor = a;
+        editura = e;
+        rezumat = rez;
         pret = p;
+        cantitate = cant;
         this.an = an;              
     }
     public void setTitlu(String n){
@@ -41,7 +47,7 @@ public class Carte /*implements Serializable*/ {
     public void setEditura(String e){
         this.editura = e;
     }
-    public void setRez(String r){
+    public void setRezumat(String r){
         this.rezumat = r;
     }
     public void setPret(int p){
@@ -75,6 +81,7 @@ public class Carte /*implements Serializable*/ {
     public int getCantitate(){
         return cantitate;
     }
+    
     
     void Afisare(){
         System.out.println(titlu);
