@@ -5,13 +5,12 @@
  */
 package biblioteca;
 //import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.io.Serializable;
 /**
  *
  * @author avent
  */
-public class Carte /*implements Serializable*/ {
+public class Carte implements Serializable {
 //    private static final long serialVersionUID = 1L;
     public String titlu;
     public String autor;
@@ -21,12 +20,18 @@ public class Carte /*implements Serializable*/ {
     public int an;
     public int cantitate;
     
-    Scanner scan =new Scanner(System.in);
+    //Scanner scan =new Scanner(System.in);
     
     
     
     public Carte(){
         
+    }
+    
+    public Carte(String t, String rez, int a){
+        titlu = t;
+        rezumat = rez;
+        an = a;
     }
     
     public Carte(String t, String a, String e, String rez, int p, int cant, int an){
