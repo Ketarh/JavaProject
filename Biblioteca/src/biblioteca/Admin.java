@@ -6,6 +6,7 @@
 package biblioteca;
 
 
+import java.awt.event.KeyEvent;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,7 +15,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
@@ -26,15 +31,23 @@ import javax.swing.table.DefaultTableModel;
  */
 public class Admin extends javax.swing.JFrame {
     //Carte carte = new Carte();
-    public static Carte[] CC = new Carte[25];
+    public static Carte CC = new Carte();
     public static int count = 0;
-    public static int countRow = 0;
+    public static int countRow;
     public static ArrayList<Carte> carti = new ArrayList<>();
-    public static Object [] row = new Object [7];
-    public static ArrayList<Object> rows = new ArrayList<>();
+    public static Object[] row = new Object [7];
+    public static ArrayList<Object[]> rows = new ArrayList<>();
     public static File file = new File("BOOKS.txt");
     public static File fileTable = new File("Table.txt");
+    public static File fileTime = new File("Dates.txt");
     public static int zile = 0;
+    public static char cr;
+    public static Vector<Integer> days = new Vector<>();
+    public static ArrayList<Time> dates = new ArrayList<>();
+    public static ArrayList<Carte> imprumutat = new ArrayList<>();
+    public static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    LocalDateTime now = LocalDateTime.now();
+    
     
     /**
      * Creates new form Admin
@@ -46,16 +59,23 @@ public class Admin extends javax.swing.JFrame {
     
     public Admin() {
         initComponents();
+        
+        countRow=0;
+        
         if(dm.isEmpty() == true){
                    updateBT.setEnabled(false);
                    delBT.setEnabled(false);
                }
+        
         cartiJLIST.setModel(dm);
         table.addColumn("Titlu");
         table.addColumn("Autor");
         table.addColumn("Editura");
         table.addColumn("An publicatie");
+        table.addColumn("Data imprumutului");
+        table.addColumn("Data Returnarii");
         cartiTB.setModel(table);
+        
         try {
             LoadFile();
         } catch (IOException | ClassNotFoundException ex) {
@@ -69,6 +89,14 @@ public class Admin extends javax.swing.JFrame {
     }
     
        
+    void numberOnly(KeyEvent evt){
+        
+        cr = evt.getKeyChar();
+        if(Character.isDigit(cr) != true){
+            evt.consume();
+        }
+        
+    }
     
     void deselect(){
         cartiJLIST.clearSelection();
@@ -86,20 +114,7 @@ public class Admin extends javax.swing.JFrame {
         cantTF.setText("");
         anTF.setText("");
     }
-    
-//    void selectup(int i){
-//        titluTF.setText(CC[i].getTitlu());
-//        autorTF.setText(CC[i].getAutor());
-//        edituraTF.setText(CC[i].getEditura());
-//        rezumatTF.setText(CC[i].getRezumat());
-//        anTF.setText(Integer.toString(CC[i].getAn()));
-//        pretTF.setText(Integer.toString(CC[i].getPret()));
-//        cantTF.setText(Integer.toString(CC[i].getCantitate()));
-//        addBT.setEnabled(false);
-//        updateBT.setEnabled(true);
-//        delBT.setEnabled(true);
-//    }
-    
+       
     void selectup2(int i){
         titluTF.setText(carti.get(i).getTitlu());
         autorTF.setText(carti.get(i).getAutor());
@@ -125,17 +140,7 @@ public class Admin extends javax.swing.JFrame {
             imprumutBT.setEnabled(false);
         }else imprumutBT.setEnabled(true);
         
-    }
-    
-//    void update(int i){
-//        CC[i].setTitlu(titluTF.getText());
-//        CC[i].setAutor(autorTF.getText());
-//        CC[i].setEditura(edituraTF.getText());
-//        CC[i].setRezumat(rezumatTF.getText());
-//        CC[i].setAn(Integer.parseInt(anTF.getText()));
-//        CC[i].setCant(Integer.parseInt(cantTF.getText()));
-//        CC[i].setPret(Integer.parseInt(pretTF.getText()));
-//    }
+    }    
     
     void update2(int i){
         carti.get(i).setTitlu(titluTF.getText());
@@ -145,19 +150,8 @@ public class Admin extends javax.swing.JFrame {
         carti.get(i).setAn(Integer.parseInt(anTF.getText()));
         carti.get(i).setCant(Integer.parseInt(cantTF.getText()));
         carti.get(i).setPret(Integer.parseInt(pretTF.getText()));
-    }
-    
-   
-    
-//    void delete(int i){
-//        for(int j=i; j<count; j++){
-//            
-//            carti.remove(j);
-//        }
-//        count-=1;
-//    }
-    
-
+    }      
+                   
     static void SaveFile() throws FileNotFoundException, IOException{
         
         FileOutputStream FO = new FileOutputStream(file);
@@ -176,15 +170,37 @@ public class Admin extends javax.swing.JFrame {
         
         FileOutputStream FOT = new FileOutputStream(fileTable);
         ObjectOutputStream outTable = new ObjectOutputStream(FOT);
-        
+        FileOutputStream FOSTime = new FileOutputStream(fileTime);
+        ObjectOutputStream outTime = new ObjectOutputStream(FOSTime);
+                
         outTable.reset();
-        for(Object r: rows){
+        outTime.reset();
+        for(Carte r: imprumutat){
             outTable.writeObject(r);
+        }
+        for(Time t: dates){
+            outTime.writeObject(t);
         }
         
         FOT.close();
         outTable.close();
+        FOSTime.close();
+        outTime.close();
     }
+    
+//    static void SaveTime() throws FileNotFoundException, IOException{
+//        
+//        FileOutputStream FOSTime = new FileOutputStream(fileTime);
+//        ObjectOutputStream outTime = new ObjectOutputStream(FOSTime);
+//        
+//        outTime.reset();
+//        for(Time t: dates){
+//            outTime.writeObject(t);
+//        }
+//        
+//        FOSTime.close();
+//        outTime.close();
+//    }
     
     static void LoadFile() throws FileNotFoundException, IOException, ClassNotFoundException{
         
@@ -206,21 +222,56 @@ public class Admin extends javax.swing.JFrame {
     
     static void LoadTable() throws FileNotFoundException, IOException, ClassNotFoundException{
         
+        //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        
         FileInputStream fileInputTable = new FileInputStream(fileTable);
-        ObjectInputStream INPUT = new ObjectInputStream(fileInputTable);
+        ObjectInputStream inputTable = new ObjectInputStream(fileInputTable);
+        FileInputStream fileInputTime = new FileInputStream(fileTime);
+        ObjectInputStream inputTime = new ObjectInputStream(fileInputTime);
         
         try {
             while(true){
-                Object[] r = (Object[])INPUT.readObject();
-                rows.add(r);
+                Carte r = (Carte)inputTable.readObject();
+                Time t = (Time)inputTime.readObject();
                 
-                table.addRow((Object[]) rows.get(countRow));
+                imprumutat.add(r);
+                dates.add(t);
+                
+                row[0]=imprumutat.get(countRow).getTitlu();
+                row[1]=imprumutat.get(countRow).getAutor();
+                row[2]=imprumutat.get(countRow).getEditura();
+                row[3]=imprumutat.get(countRow).getAn();
+                row[4]=dtf.format(dates.get(countRow).getFirstDay());
+                row[5]=dtf.format(dates.get(countRow).getReturnDay());
+                
+                rows.add(row);
+                table.addRow((Object[])rows.get(countRow));
                 countRow++;
             }
         }catch(EOFException ex){
             
         }
     }
+    
+//    static void LoadTime() throws FileNotFoundException, IOException, ClassNotFoundException{
+//        
+//        FileInputStream fileInputTime = new FileInputStream(fileTime);
+//        ObjectInputStream inputTime = new ObjectInputStream(fileInputTime);
+//        
+//        try {
+//            while(true){
+//                Time t = (Time)inputTime.readObject();
+//                dates.add(t);               
+//                row[4]=dates.get(countRow).getFirstDay();
+//                row[5]=dates.get(countRow).getReturnDay();
+//                rows.add(row);
+//                table.addRow((Object[])rows.get(countRow));
+//                
+//            }
+//        }catch(EOFException ex){
+//            
+//        }
+//    }
     
     
     /**
@@ -401,6 +452,17 @@ public class Admin extends javax.swing.JFrame {
         jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         jLabel11.setText("An Publicatie:");
 
+        anTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                anTFActionPerformed(evt);
+            }
+        });
+        anTF.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                anTFKeyTyped(evt);
+            }
+        });
+
         jLabel12.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel12.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel12.setText("Scurt Rezumat");
@@ -409,9 +471,21 @@ public class Admin extends javax.swing.JFrame {
         jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel13.setText("Pret");
 
+        pretTF.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                pretTFKeyTyped(evt);
+            }
+        });
+
         jLabel14.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel14.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel14.setText("Cantitate");
+
+        cantTF.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                cantTFKeyTyped(evt);
+            }
+        });
 
         rezumatTF.setColumns(20);
         rezumatTF.setRows(5);
@@ -749,23 +823,15 @@ public class Admin extends javax.swing.JFrame {
         carti.add(new Carte(titluTF.getText(), autorTF.getText(), edituraTF.getText(), rezumatTF.getText(),
                 Integer.parseInt(pretTF.getText()), Integer.parseInt(cantTF.getText()), Integer.parseInt(anTF.getText())));
         
-//        CC[count] = new Carte(titluTF.getText(), autorTF.getText(), edituraTF.getText(), rezumatTF.getText(),
-//                Integer.parseInt(pretTF.getText()), Integer.parseInt(cantTF.getText()), Integer.parseInt(anTF.getText()));
-//        
-//        CC[count].Afisare();
         try {
             SaveFile();
         } catch (IOException ex) {
             Logger.getLogger(Admin.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
         carti.get(count).Afisare();
         count++;
-        
         clear();
-        
-        //add(titluTF.getText());
-        //titluTF.setText("");
-        
     }//GEN-LAST:event_addBTActionPerformed
 
     private void cartiJLISTMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cartiJLISTMouseClicked
@@ -773,20 +839,10 @@ public class Admin extends javax.swing.JFrame {
         int index = cartiJLIST.getSelectedIndex(); 
         String selected = cartiJLIST.getSelectedValue();
         
-        //selectup(index);
         selectup2(index);
-        
-//        titluTF.setText(CC[index].getTitlu());
-//        autorTF.setText(CC[index].getAutor());
-//        edituraTF.setText(CC[index].getEditura());
-//        rezumatTF.setText(CC[index].getRezumat());
-//        anTF.setText(Integer.toString(CC[index].getAn()));
-//        pretTF.setText(Integer.toString(CC[index].getPret()));
-//        cantTF.setText(Integer.toString(CC[index].getCantitate()));
-        
+
         System.out.println("Index: " + index);
         carti.get(index).Afisare();
-        //CC[index].Afisare();
     }//GEN-LAST:event_cartiJLISTMouseClicked
 
     private void updateBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateBTActionPerformed
@@ -798,16 +854,14 @@ public class Admin extends javax.swing.JFrame {
         update2(index);
         
         try {
-            SaveFile();
-            //update(index);
+            SaveFile();            
         } catch (IOException ex) {
             Logger.getLogger(Admin.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         clear();
         deselect();
-        carti.get(index).Afisare();
-        
+        carti.get(index).Afisare();      
     }//GEN-LAST:event_updateBTActionPerformed
 
     private void delBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delBTActionPerformed
@@ -815,6 +869,7 @@ public class Admin extends javax.swing.JFrame {
         int index = cartiJLIST.getSelectedIndex();
         
         carti.remove(index);
+        dm.remove(index);
         count--;
         
         try {
@@ -823,12 +878,8 @@ public class Admin extends javax.swing.JFrame {
             Logger.getLogger(Admin.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-//        delete(index);
-
         clear();
-        deselect();
-        dm.remove(index);
-        
+        deselect();             
     }//GEN-LAST:event_delBTActionPerformed
 
     private void AdaugaCartiMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_AdaugaCartiMouseClicked
@@ -840,17 +891,32 @@ public class Admin extends javax.swing.JFrame {
     private void imprumutBTMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imprumutBTMouseClicked
         // TODO add your handling code here:
         
+        //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        
+        zile = Integer.parseInt(zileTF.getText());
         int index = cartiJLIST.getSelectedIndex();
+        
+        
         row[0]=carti.get(index).getTitlu();
         row[1]=carti.get(index).getAutor();
         row[2]=carti.get(index).getEditura();
         row[3]=carti.get(index).getAn();
+        
+        dates.add(new Time(now, zile));
+
+        row[4]=dtf.format(dates.get(countRow).getFirstDay());
+        row[5]=dtf.format(dates.get(countRow).getReturnDay());
+        
         rows.add(row);
-        System.out.println(rows);
-        table.addRow((Object[]) rows.get(countRow));
+        
+        
+        System.out.println(Arrays.toString(rows.get(countRow)));
+        table.addRow((Object[])rows.get(countRow));
         countRow++;
         carti.get(index).setCant(carti.get(index).getCantitate()-1);
         cantLB.setText(Integer.toString(carti.get(index).getCantitate()));
+        imprumutat.add(carti.get(index));
+        zileTF.setText("");
         
         try {
             SaveFile();
@@ -869,15 +935,28 @@ public class Admin extends javax.swing.JFrame {
         // TODO add your handling code here:
         
         int index = cartiJLIST.getSelectedIndex();
-        int i = 0;
-        for(Object r: rows){
-            if(r.equals(rows.get(index))){
+        int i;
+        System.out.println("countRow" +countRow);
+        for(i=0;i<imprumutat.size();i++){
+            System.out.println("i: " +i);
+            if(imprumutat.get(i).getTitlu().equals(carti.get(index).getTitlu())){
+                
                 table.removeRow(i);
+                rows.remove(i);
+                imprumutat.remove(i);
+                dates.remove(i);
+                countRow--;
                 carti.get(index).setCant(carti.get(index).getCantitate()+1);
                 cantLB.setText(Integer.toString(carti.get(index).getCantitate()));
-                break;
-            }else i++;
+                System.out.println("i: " +i);
+                i=imprumutat.size();
+            }
+            
+            
         }
+        
+        System.out.println("i: " +i);
+        System.out.println("countRow: "+countRow);
         
         try {
             SaveFile();
@@ -892,6 +971,26 @@ public class Admin extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_returnBTMouseClicked
+
+    private void anTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anTFActionPerformed
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_anTFActionPerformed
+
+    private void anTFKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_anTFKeyTyped
+        // TODO add your handling code here:        
+        numberOnly(evt);
+    }//GEN-LAST:event_anTFKeyTyped
+
+    private void pretTFKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_pretTFKeyTyped
+        // TODO add your handling code here: 
+        numberOnly(evt);
+    }//GEN-LAST:event_pretTFKeyTyped
+
+    private void cantTFKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cantTFKeyTyped
+        // TODO add your handling code here:
+        numberOnly(evt);
+    }//GEN-LAST:event_cantTFKeyTyped
 
     /**
      * @param args the command line arguments

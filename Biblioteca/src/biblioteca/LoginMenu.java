@@ -13,7 +13,10 @@ import javax.swing.JOptionPane;
  * @author avent
  */
 public class LoginMenu extends javax.swing.JFrame {
+    
     Biblioteca biblioteca;
+    
+    
     /**
      * Creates new form LoginMenu
      */
@@ -177,9 +180,11 @@ public class LoginMenu extends javax.swing.JFrame {
     
     private void userTFKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_userTFKeyTyped
         // TODO add your handling code here:
-        if ((userTF.getText() + evt.getKeyChar()).length() > 10) {
+        
+        if ((userTF.getText() + evt.getKeyChar()).length() > 20) {
         evt.consume();
-    }
+        }
+        
     }//GEN-LAST:event_userTFKeyTyped
 
     private void passTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passTFActionPerformed
@@ -188,6 +193,7 @@ public class LoginMenu extends javax.swing.JFrame {
 
     private void passTFKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passTFKeyPressed
         // TODO add your handling code here:
+        
       if(evt.getKeyCode()== KeyEvent.VK_ENTER){
           if(userTF.getText().equalsIgnoreCase("admin") && passTF.getText().equals("12345")){
             JOptionPane.showMessageDialog(rootPane, "Login Succefully");
@@ -205,6 +211,7 @@ public class LoginMenu extends javax.swing.JFrame {
 
     private void userTFKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_userTFKeyPressed
         // TODO add your handling code here:
+        
         if(evt.getKeyCode()== KeyEvent.VK_ENTER){
           if(userTF.getText().equalsIgnoreCase("admin") && passTF.getText().equals("12345")){
             JOptionPane.showMessageDialog(rootPane, "Login Succefully");
