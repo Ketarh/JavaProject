@@ -6,6 +6,7 @@
 package biblioteca;
 
 
+import static biblioteca.Cauta.cautat;
 import java.awt.event.KeyEvent;
 import java.io.EOFException;
 import java.io.File;
@@ -19,10 +20,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
     
 /**
@@ -30,36 +31,44 @@ import javax.swing.table.DefaultTableModel;
  * @author avent
  */
 public class Admin extends javax.swing.JFrame {
-    //Carte carte = new Carte();
-    public static Carte CC = new Carte();
+
     public static int count = 0;
     public static int countRow;
-    public static ArrayList<Carte> carti = new ArrayList<>();
+    public static int zile = 0;
+    public static char cr;
     public static Object[] row = new Object [7];
+    public static ArrayList<Carte> carti = new ArrayList<>();
+    public static ArrayList<Time> dates = new ArrayList<>();
+    public static ArrayList<Carte> imprumutat = new ArrayList<>();
     public static ArrayList<Object[]> rows = new ArrayList<>();
     public static File file = new File("BOOKS.txt");
     public static File fileTable = new File("Table.txt");
     public static File fileTime = new File("Dates.txt");
-    public static int zile = 0;
-    public static char cr;
-    public static Vector<Integer> days = new Vector<>();
-    public static ArrayList<Time> dates = new ArrayList<>();
-    public static ArrayList<Carte> imprumutat = new ArrayList<>();
     public static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    LocalDateTime now = LocalDateTime.now();
-    
-    
+    public static LocalDateTime now = LocalDateTime.now();   
+          
     /**
      * Creates new form Admin
      */
     
     public static DefaultListModel dm = new DefaultListModel();
-    public static DefaultTableModel table = new DefaultTableModel();
-    
+    public static DefaultTableModel table = new DefaultTableModel(){
+        
+        @Override
+        public boolean isCellEditable(int row, int column){
+            return false;
+        }
+        
+        
+    };
+      
     
     public Admin() {
         initComponents();
         
+        this.setLocationRelativeTo(null);
+        this.setResizable(false);
+                
         countRow=0;
         
         if(dm.isEmpty() == true){
@@ -71,9 +80,10 @@ public class Admin extends javax.swing.JFrame {
         table.addColumn("Titlu");
         table.addColumn("Autor");
         table.addColumn("Editura");
-        table.addColumn("An publicatie");
-        table.addColumn("Data imprumutului");
+        table.addColumn("An Publicatie");
+        table.addColumn("Data Imprumutului");
         table.addColumn("Data Returnarii");
+        table.addColumn("Pret Total");
         cartiTB.setModel(table);
         
         try {
@@ -113,6 +123,16 @@ public class Admin extends javax.swing.JFrame {
         pretTF.setText("");
         cantTF.setText("");
         anTF.setText("");
+    }
+    
+    void clear2(){
+        titluLB.setText("");
+        autorLB.setText("");
+        edituraLB.setText("");
+        rezumatLB.setText("");
+        pretLB.setText("");
+        cantLB.setText("");
+        anLB.setText("");
     }
        
     void selectup2(int i){
@@ -186,21 +206,7 @@ public class Admin extends javax.swing.JFrame {
         outTable.close();
         FOSTime.close();
         outTime.close();
-    }
-    
-//    static void SaveTime() throws FileNotFoundException, IOException{
-//        
-//        FileOutputStream FOSTime = new FileOutputStream(fileTime);
-//        ObjectOutputStream outTime = new ObjectOutputStream(FOSTime);
-//        
-//        outTime.reset();
-//        for(Time t: dates){
-//            outTime.writeObject(t);
-//        }
-//        
-//        FOSTime.close();
-//        outTime.close();
-//    }
+    }   
     
     static void LoadFile() throws FileNotFoundException, IOException, ClassNotFoundException{
         
@@ -243,7 +249,7 @@ public class Admin extends javax.swing.JFrame {
                 row[3]=imprumutat.get(countRow).getAn();
                 row[4]=dtf.format(dates.get(countRow).getFirstDay());
                 row[5]=dtf.format(dates.get(countRow).getReturnDay());
-                
+                row[6]=dates.get(countRow).getTotalPrice();
                 rows.add(row);
                 table.addRow((Object[])rows.get(countRow));
                 countRow++;
@@ -252,27 +258,7 @@ public class Admin extends javax.swing.JFrame {
             
         }
     }
-    
-//    static void LoadTime() throws FileNotFoundException, IOException, ClassNotFoundException{
-//        
-//        FileInputStream fileInputTime = new FileInputStream(fileTime);
-//        ObjectInputStream inputTime = new ObjectInputStream(fileInputTime);
-//        
-//        try {
-//            while(true){
-//                Time t = (Time)inputTime.readObject();
-//                dates.add(t);               
-//                row[4]=dates.get(countRow).getFirstDay();
-//                row[5]=dates.get(countRow).getReturnDay();
-//                rows.add(row);
-//                table.addRow((Object[])rows.get(countRow));
-//                
-//            }
-//        }catch(EOFException ex){
-//            
-//        }
-//    }
-    
+      
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -338,8 +324,12 @@ public class Admin extends javax.swing.JFrame {
         zileTF = new javax.swing.JTextField();
         jLabel23 = new javax.swing.JLabel();
         returnBT = new javax.swing.JButton();
+        jLabel27 = new javax.swing.JLabel();
+        cautaTF = new javax.swing.JTextField();
+        cautaBT = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         cartiTB = new javax.swing.JTable();
+        jLabel26 = new javax.swing.JLabel();
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Detalii Carte"));
 
@@ -391,7 +381,8 @@ public class Admin extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Adiministrator Biblioteca");
 
-        jLabel1.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("PMingLiU-ExtB", 1, 36)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Admin Biblioteca");
 
@@ -506,31 +497,34 @@ public class Admin extends javax.swing.JFrame {
                         .addComponent(delBT, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(AdaugaCartiLayout.createSequentialGroup()
                         .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, AdaugaCartiLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(jLabel11))
                             .addGroup(AdaugaCartiLayout.createSequentialGroup()
                                 .addGap(80, 80, 80)
+                                .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, AdaugaCartiLayout.createSequentialGroup()
+                                .addContainerGap()
                                 .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(jLabel11, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel10, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addGap(70, 70, 70)
                         .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(titluTF)
                             .addComponent(autorTF)
-                            .addComponent(edituraTF)
-                            .addComponent(anTF, javax.swing.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 325, Short.MAX_VALUE)
+                            .addComponent(anTF, javax.swing.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE)
+                            .addComponent(edituraTF))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 189, Short.MAX_VALUE)
                         .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, AdaugaCartiLayout.createSequentialGroup()
                                 .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(pretTF, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(100, 100, 100)
-                                .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(cantTF, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(AdaugaCartiLayout.createSequentialGroup()
+                                        .addGap(100, 100, 100)
+                                        .addComponent(cantTF, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, AdaugaCartiLayout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, AdaugaCartiLayout.createSequentialGroup()
                                 .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(66, 66, 66))
@@ -546,32 +540,32 @@ public class Admin extends javax.swing.JFrame {
                         .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(titluTF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel12, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(AdaugaCartiLayout.createSequentialGroup()
+                        .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(autorTF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(27, 27, 27)))
+                .addGap(18, 18, 18)
+                .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(edituraTF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(AdaugaCartiLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(15, 15, 15)
-                        .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(pretTF, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(cantTF, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(AdaugaCartiLayout.createSequentialGroup()
-                        .addGap(50, 50, 50)
-                        .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(autorTF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(50, 50, 50)
-                        .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(edituraTF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(50, 50, 50)
+                        .addGap(51, 51, 51)
                         .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(anTF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 85, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(AdaugaCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(addBT, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(delBT, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -598,16 +592,16 @@ public class Admin extends javax.swing.JFrame {
         jLabel18.setText("An Publicatie:");
 
         autorLB.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        autorLB.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        autorLB.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
 
         titluLB.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        titluLB.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        titluLB.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
 
         edituraLB.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        edituraLB.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        edituraLB.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
 
         anLB.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        anLB.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        anLB.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
 
         jLabel20.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel20.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -634,7 +628,7 @@ public class Admin extends javax.swing.JFrame {
         pretLB.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
         jLabel24.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel24.setText("lei pe zi");
+        jLabel24.setText("Lei pe zi");
 
         jLabel25.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel25.setText("buc.");
@@ -652,6 +646,11 @@ public class Admin extends javax.swing.JFrame {
 
         zileTF.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         zileTF.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        zileTF.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                zileTFKeyTyped(evt);
+            }
+        });
 
         jLabel23.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel23.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -661,6 +660,16 @@ public class Admin extends javax.swing.JFrame {
         returnBT.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 returnBTMouseClicked(evt);
+            }
+        });
+
+        jLabel27.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel27.setText("Cauta Carte:");
+
+        cautaBT.setText("Cauta");
+        cautaBT.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cautaBTMouseClicked(evt);
             }
         });
 
@@ -679,48 +688,57 @@ public class Admin extends javax.swing.JFrame {
                                 .addComponent(jLabel17))))
                     .addGroup(InformatiiCartiLayout.createSequentialGroup()
                         .addGap(54, 54, 54)
-                        .addComponent(jLabel18)))
-                .addGap(70, 70, 70)
+                        .addComponent(jLabel18))
+                    .addGroup(InformatiiCartiLayout.createSequentialGroup()
+                        .addGap(54, 54, 54)
+                        .addGroup(InformatiiCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(returnBT, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(imprumutBT, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGroup(InformatiiCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, InformatiiCartiLayout.createSequentialGroup()
+                    .addGroup(InformatiiCartiLayout.createSequentialGroup()
+                        .addGap(31, 31, 31)
                         .addComponent(titluLB, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(146, 146, 146))
                     .addGroup(InformatiiCartiLayout.createSequentialGroup()
                         .addGroup(InformatiiCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(returnBT, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(imprumutBT, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(autorLB, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE)
-                            .addComponent(edituraLB, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(anLB, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGroup(InformatiiCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(InformatiiCartiLayout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 320, Short.MAX_VALUE)
-                                .addGroup(InformatiiCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(InformatiiCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, InformatiiCartiLayout.createSequentialGroup()
-                                            .addComponent(jLabel21, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addGap(18, 18, 18)
-                                            .addComponent(cantLB, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addGap(18, 18, 18)
-                                            .addComponent(jLabel25, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                        .addGroup(InformatiiCartiLayout.createSequentialGroup()
-                                            .addComponent(jLabel20, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addGap(18, 18, 18)
-                                            .addComponent(pretLB, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addGap(18, 18, 18)
-                                            .addComponent(jLabel24))))
-                                .addGap(80, 80, 80))
-                            .addGroup(InformatiiCartiLayout.createSequentialGroup()
-                                .addGap(18, 18, 18)
+                                .addGap(18, 18, Short.MAX_VALUE)
                                 .addComponent(jLabel22, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(zileTF, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(zileTF, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, InformatiiCartiLayout.createSequentialGroup()
+                                .addGap(31, 31, 31)
+                                .addGroup(InformatiiCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(autorLB, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(anLB, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(edituraLB, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 101, Short.MAX_VALUE)
+                        .addGroup(InformatiiCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(InformatiiCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(InformatiiCartiLayout.createSequentialGroup()
+                                    .addComponent(jLabel20, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(pretLB, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(jLabel24))
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, InformatiiCartiLayout.createSequentialGroup()
+                                    .addComponent(jLabel21, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(cantLB, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(jLabel25, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGroup(InformatiiCartiLayout.createSequentialGroup()
+                                .addComponent(jLabel27)
                                 .addGap(18, 18, 18)
-                                .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
+                                .addGroup(InformatiiCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(cautaBT, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                                    .addComponent(cautaTF))))
+                        .addGap(80, 80, 80))))
         );
         InformatiiCartiLayout.setVerticalGroup(
             InformatiiCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -760,9 +778,13 @@ public class Admin extends javax.swing.JFrame {
                     .addComponent(imprumutBT)
                     .addComponent(jLabel22, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(zileTF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel27, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cautaTF, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(returnBT)
+                .addGroup(InformatiiCartiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(returnBT)
+                    .addComponent(cautaBT))
                 .addGap(67, 67, 67))
         );
 
@@ -782,23 +804,33 @@ public class Admin extends javax.swing.JFrame {
         ));
         cartiTB.setColumnSelectionAllowed(true);
         cartiTB.getTableHeader().setReorderingAllowed(false);
+        cartiTB.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cartiTBMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(cartiTB);
         cartiTB.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 
         Panou.addTab("Carti Imprumutate", jScrollPane2);
 
+        jLabel26.setIcon(new javax.swing.ImageIcon("C:\\Users\\avent\\OneDrive\\Documents\\NetBeansProjects\\Biblioteca\\library.jpg")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Panou, javax.swing.GroupLayout.DEFAULT_SIZE, 1024, Short.MAX_VALUE)
-                .addContainerGap())
             .addGroup(layout.createSequentialGroup()
-                .addGap(394, 394, 394)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(52, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(Panou, javax.swing.GroupLayout.PREFERRED_SIZE, 1005, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(43, 43, 43))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(409, 409, 409))))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, 1100, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -807,7 +839,9 @@ public class Admin extends javax.swing.JFrame {
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(Panou, javax.swing.GroupLayout.PREFERRED_SIZE, 525, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(108, Short.MAX_VALUE))
+                .addContainerGap(167, Short.MAX_VALUE))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, 761, Short.MAX_VALUE))
         );
 
         pack();
@@ -819,6 +853,8 @@ public class Admin extends javax.swing.JFrame {
         // TODO add your handling code here:  
         cartiJLIST.setModel(dm);                    
         dm.addElement(titluTF.getText());
+        
+        JOptionPane.showMessageDialog(rootPane, "A fost adaugata cartea: " +titluTF.getText());
         
         carti.add(new Carte(titluTF.getText(), autorTF.getText(), edituraTF.getText(), rezumatTF.getText(),
                 Integer.parseInt(pretTF.getText()), Integer.parseInt(cantTF.getText()), Integer.parseInt(anTF.getText())));
@@ -837,7 +873,6 @@ public class Admin extends javax.swing.JFrame {
     private void cartiJLISTMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cartiJLISTMouseClicked
         // TODO add your handling code here:
         int index = cartiJLIST.getSelectedIndex(); 
-        String selected = cartiJLIST.getSelectedValue();
         
         selectup2(index);
 
@@ -848,11 +883,12 @@ public class Admin extends javax.swing.JFrame {
     private void updateBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateBTActionPerformed
         // TODO add your handling code here:
         int index = cartiJLIST.getSelectedIndex();
-        System.out.println(index);
-        dm.set(index, titluTF.getText());
+        System.out.println(index);               
         
+        dm.set(index, titluTF.getText());  
+        JOptionPane.showMessageDialog(rootPane, "Cartea " +carti.get(index).getTitlu() +" a fost modificata!");
         update2(index);
-        
+                        
         try {
             SaveFile();            
         } catch (IOException ex) {
@@ -866,11 +902,29 @@ public class Admin extends javax.swing.JFrame {
 
     private void delBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delBTActionPerformed
         // TODO add your handling code here:
-        int index = cartiJLIST.getSelectedIndex();
+        int i, index = cartiJLIST.getSelectedIndex();
+        
+        JOptionPane.showMessageDialog(rootPane, "Cartea " +carti.get(index).getTitlu() +" a fost stearsa!");
+        
+        for(i=0;i<imprumutat.size();i++){
+            
+            System.out.println("i: " +i);
+            if(imprumutat.get(i).getTitlu().equals(carti.get(index).getTitlu())){                
+                table.removeRow(i);
+                rows.remove(i);
+                imprumutat.remove(i);
+                dates.remove(i);
+                countRow--;                                                                                               
+            }
+        }
         
         carti.remove(index);
         dm.remove(index);
+        
+        
         count--;
+        
+        
         
         try {
             SaveFile();
@@ -879,6 +933,7 @@ public class Admin extends javax.swing.JFrame {
         }
         
         clear();
+        clear2();
         deselect();             
     }//GEN-LAST:event_delBTActionPerformed
 
@@ -889,35 +944,41 @@ public class Admin extends javax.swing.JFrame {
     }//GEN-LAST:event_AdaugaCartiMouseClicked
 
     private void imprumutBTMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imprumutBTMouseClicked
-        // TODO add your handling code here:
-        
-        //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        
+        // TODO add your handling code here:        
         zile = Integer.parseInt(zileTF.getText());
         int index = cartiJLIST.getSelectedIndex();
+                
+        if(carti.get(index).getCantitate() > 0){
+            row[0]=carti.get(index).getTitlu();
+            row[1]=carti.get(index).getAutor();
+            row[2]=carti.get(index).getEditura();
+            row[3]=carti.get(index).getAn();
         
-        
-        row[0]=carti.get(index).getTitlu();
-        row[1]=carti.get(index).getAutor();
-        row[2]=carti.get(index).getEditura();
-        row[3]=carti.get(index).getAn();
-        
-        dates.add(new Time(now, zile));
+            dates.add(new Time(now, zile, carti.get(index).getPret()));
 
-        row[4]=dtf.format(dates.get(countRow).getFirstDay());
-        row[5]=dtf.format(dates.get(countRow).getReturnDay());
+            row[4]=dtf.format(dates.get(countRow).getFirstDay());
+            row[5]=dtf.format(dates.get(countRow).getReturnDay());
+            row[6]=dates.get(countRow).getTotalPrice();        
         
-        rows.add(row);
-        
-        
-        System.out.println(Arrays.toString(rows.get(countRow)));
-        table.addRow((Object[])rows.get(countRow));
-        countRow++;
-        carti.get(index).setCant(carti.get(index).getCantitate()-1);
-        cantLB.setText(Integer.toString(carti.get(index).getCantitate()));
-        imprumutat.add(carti.get(index));
-        zileTF.setText("");
-        
+            rows.add(row);
+
+            System.out.println(Arrays.toString(rows.get(countRow)));
+            table.addRow((Object[])rows.get(countRow));
+            countRow++;
+
+            carti.get(index).setCant(carti.get(index).getCantitate()-1);
+            cantLB.setText(Integer.toString(carti.get(index).getCantitate()));
+            imprumutat.add(carti.get(index));
+            zileTF.setText("");
+
+            JOptionPane.showMessageDialog(rootPane, "Cartea " +carti.get(index).getTitlu() +" a fost imprumutata pentru " +Integer.toString(zile) +" zile!");
+        }else {
+            JOptionPane.showMessageDialog(rootPane, "Stoc epuizat!");
+            zileTF.setText("");
+        }
+            
+            
+            
         try {
             SaveFile();
         } catch (IOException ex) {
@@ -932,27 +993,33 @@ public class Admin extends javax.swing.JFrame {
     }//GEN-LAST:event_imprumutBTMouseClicked
 
     private void returnBTMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_returnBTMouseClicked
-        // TODO add your handling code here:
-        
+        // TODO add your handling code here:        
         int index = cartiJLIST.getSelectedIndex();
-        int i;
+        int i, ok=0;
+        
         System.out.println("countRow" +countRow);
         for(i=0;i<imprumutat.size();i++){
+            
             System.out.println("i: " +i);
-            if(imprumutat.get(i).getTitlu().equals(carti.get(index).getTitlu())){
-                
+            if(imprumutat.get(i).getTitlu().equals(carti.get(index).getTitlu())){                
                 table.removeRow(i);
                 rows.remove(i);
                 imprumutat.remove(i);
                 dates.remove(i);
                 countRow--;
+                
                 carti.get(index).setCant(carti.get(index).getCantitate()+1);
                 cantLB.setText(Integer.toString(carti.get(index).getCantitate()));
                 System.out.println("i: " +i);
                 i=imprumutat.size();
+                ok=1;
+                JOptionPane.showMessageDialog(rootPane, "Cartea " +carti.get(index).getTitlu() +" a fost returnata!");
             }
             
             
+        }
+        if(ok == 0){
+            JOptionPane.showMessageDialog(rootPane, "Nu este nicio carte '" +carti.get(index).getTitlu() +"' imprumutata!");
         }
         
         System.out.println("i: " +i);
@@ -991,6 +1058,59 @@ public class Admin extends javax.swing.JFrame {
         // TODO add your handling code here:
         numberOnly(evt);
     }//GEN-LAST:event_cantTFKeyTyped
+
+    private void cartiTBMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cartiTBMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cartiTBMouseClicked
+
+    private void cautaBTMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cautaBTMouseClicked
+        // TODO add your handling code here:
+        int elem=0, i=0, one=0;
+        deselect();
+        cautat.removeAll(carti);
+               
+        for(Carte c: carti){
+            
+            if(cautaTF.getText().equals(c.getTitlu())){
+                cartiJLIST.setSelectedIndex(i);
+                JOptionPane.showMessageDialog(rootPane, "Cartea " +c.getTitlu() +" a fost gasita!");
+                selectup2(i);
+                elem = -1;
+            }
+            
+            if(cautaTF.getText().equals(c.getAutor()) || cautaTF.getText().equals(c.getEditura()) || cautaTF.getText().equals(Integer.toString(c.getAn()))){
+                cautat.add(c);
+                elem++; 
+                one=i;
+            } 
+            i++;
+        }
+        
+        if(elem > 0){
+            if(elem == 1){
+                JOptionPane.showMessageDialog(rootPane, "A fost gasita o carte!");
+                cartiJLIST.setSelectedIndex(one);
+                selectup2(one);
+                
+            }else{
+                JOptionPane.showMessageDialog(rootPane, "Au fost gasite " +Integer.toString(elem) +" carti!");
+                new Cauta().setVisible(true);
+                clear();
+                clear2();
+            }
+        }else if(elem == 0){
+            JOptionPane.showMessageDialog(rootPane, "Nu a fost gasita nicio carte!");
+            clear();
+            clear2();
+        }
+        
+        cautaTF.setText("");       
+    }//GEN-LAST:event_cautaBTMouseClicked
+
+    private void zileTFKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_zileTFKeyTyped
+        // TODO add your handling code here:
+        numberOnly(evt);
+    }//GEN-LAST:event_zileTFKeyTyped
 
     /**
      * @param args the command line arguments
@@ -1044,6 +1164,8 @@ public class Admin extends javax.swing.JFrame {
     private javax.swing.JTextField cantTF;
     private javax.swing.JList<String> cartiJLIST;
     private javax.swing.JTable cartiTB;
+    private javax.swing.JButton cautaBT;
+    private javax.swing.JTextField cautaTF;
     private javax.swing.JButton delBT;
     private javax.swing.JLabel edituraLB;
     private javax.swing.JTextField edituraTF;
@@ -1066,6 +1188,8 @@ public class Admin extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel27;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;

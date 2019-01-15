@@ -13,9 +13,10 @@ import java.time.LocalDateTime;
  * @author avent
  */
 public class Time implements Serializable{
-        //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");	
+        	
         LocalDateTime firstDay;
         LocalDateTime returnDay;
+        String totalPrice;
         
         public LocalDateTime getFirstDay(){
             return firstDay;
@@ -23,6 +24,10 @@ public class Time implements Serializable{
         
         public LocalDateTime getReturnDay(){
             return returnDay;
+        }
+        
+        public String getTotalPrice(){
+            return totalPrice;
         }
         
         public void setReturnDay(int k){
@@ -37,9 +42,18 @@ public class Time implements Serializable{
             
         }
         
-        public Time(LocalDateTime T1, int p){
-            firstDay = T1;
+        public Time(LocalDateTime T1, int p ,int x){
+            int total;
+            
+            firstDay = T1;           
             returnDay = firstDay.plusDays(p);
+            
+            if(p > 14){
+            
+            total = (p - 14) * x;
+            totalPrice = Integer.toString(total) + " lei";
+            
+        }else totalPrice = "Gratuit";
         }
         
 }

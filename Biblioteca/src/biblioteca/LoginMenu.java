@@ -5,6 +5,7 @@
  */
 package biblioteca;
 
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 
@@ -20,9 +21,14 @@ public class LoginMenu extends javax.swing.JFrame {
     /**
      * Creates new form LoginMenu
      */
-    public LoginMenu() {
+    @SuppressWarnings("OverridableMethodCallInConstructor")
+    public LoginMenu() {               
         initComponents();
         
+        
+        this.setLocationRelativeTo(null);
+        this.setResizable(false);
+        this.getContentPane().setBackground(Color.decode("#7A542E"));
         
     }
 

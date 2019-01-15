@@ -4,17 +4,13 @@
  * and open the template in the editor.
  */
 package biblioteca;
-//import java.io.Serializable;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.Calendar;
 /**
  *
  * @author avent
  */
 public class Carte implements Serializable {
-//    private static final long serialVersionUID = 1L;
+
     public String titlu;
     public String autor;
     public String editura;
@@ -22,10 +18,7 @@ public class Carte implements Serializable {
     public int pret;
     public int an;
     public int cantitate;
-//    public LocalDateTime dayOfBorrow;
-//    public LocalDateTime dayOfReturn;
-    //String timeStamp = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
-    //Scanner scan =new Scanner(System.in);
+
     
     
     
@@ -48,6 +41,7 @@ public class Carte implements Serializable {
         cantitate = cant;
         this.an = an;              
     }
+    
     public void setTitlu(String n){
         this.titlu = n;
     }
@@ -69,12 +63,6 @@ public class Carte implements Serializable {
     public void setCant(int c){
         cantitate = c;
     }
-//    public void setDOB(){
-//        dayOfBorrow = LocalDateTime.now();
-//    }
-//    public void setDOR(int i){
-//        dayOfReturn = dayOfBorrow.plusDays(i);
-//    }
     
     public String getTitlu(){
         return titlu;
@@ -96,14 +84,7 @@ public class Carte implements Serializable {
     } 
     public int getCantitate(){
         return cantitate;
-    }
-//    public LocalDateTime getDOB(){
-//        return dayOfBorrow;
-//    }
-//    public LocalDateTime getDOR(){
-//        return dayOfReturn;
-//    }
-    
+    }    
     
     void Afisare(){
         System.out.println(titlu);
